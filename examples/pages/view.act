@@ -1,0 +1,6 @@
+<route path="/view" method="get">
+    <import type="stylesheet" path="./src/style.css" />
+    <import type="script" path="./src/script.js" />
+
+    <text className="text-default">test view</text>
+</route>
