@@ -1,0 +1,25 @@
+<route path="/save" method="post">
+    <title>Save</title>
+
+    <import type="stylesheet" path="./src/css/style.css" />
+    <import type="script" path="./src/script.js" />
+
+    <act-script type="text/javascript">
+        Act.actState({
+            key: `foo`,
+            value: false
+        });
+
+        const buttonOnclick = function() {
+            Act.modState({
+                key: `foo`,
+                value: !Act.get({key: `foo`})
+            });
+        }
+    </act-script>
+
+    <text className="text-default">Save Success</text>
+    <text className="text-default">${foo}</text>
+
+    <button onClick="buttonOnclick()">Change Value</button>
+</route>

@@ -1,0 +1,15 @@
+<form action="./save" method="POST" enctype="text/plain" className="form-default">
+    <input type="text" className="text-default" onInput="reload()" value="" />
+
+    <!-- <textarea className="text-default textarea-default" onInput="reload()"></textarea> -->
+    
+    <select className="text-default select-default" onInput="reload()">
+        <option value="item-1">item - 1</option>
+        <option value="item-2">item - 2</option>
+        <option value="item-3">item - 3</option>
+        <option value="item-4">item - 4</option>
+        <option value="item-5">item - 5</option>
+    </select>
+
+    <button type="submit" className="text-default button-default submit-button">Submit</button>
+</form>

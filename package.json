@@ -1,0 +1,31 @@
+{
+  "name": "modern-act",
+  "version": "0.0.4",
+  "description": "Developers' greed also led to a new thing called Modern Act.",
+  "main": "index.js",
+  "directories": {
+    "example": "examples"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "fs": "^0.0.1-security",
+    "nodemon": "^2.0.22",
+    "xml-js": "^1.6.11"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ICe1BotMaker/modern-act.git"
+  },
+  "keywords": [
+    "act"
+  ],
+  "author": "ICe1",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ICe1BotMaker/modern-act/issues"
+  },
+  "homepage": "https://github.com/ICe1BotMaker/modern-act#readme"
+}

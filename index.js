@@ -1,0 +1,260 @@
+class ModernAct {
+    constructor(port, fs, convert, express) {
+        this.pages = [];
+
+        this.startMessage = `[ ! ] $method: localhost:$port$path`;
+
+        this.port = port;
+
+        this.FS = fs;
+        this.convert = convert;
+        this.express = express;
+        this.app = this.express();
+
+        this.pagesFileExists = false;
+    }
+                
+    fixAttributes = (obj, ...BefAfts) => {
+        BefAfts.forEach(BefAft => {
+            Object.keys(obj).forEach(key => {
+                if (typeof obj[key] === `object`) {
+                    this.fixAttributes(obj[key], BefAft);
+        
+                    if (obj[key]._attributes !== undefined && obj[key]._attributes[BefAft[0]] !== undefined) {
+                        obj[key]._attributes[BefAft[1]] = obj[key]._attributes[BefAft[0]];
+        
+                        delete obj[key]._attributes[BefAft[0]];
+                    }
+                }
+            });
+        });
+
+        return obj;
+    }
+
+    compile() {
+        this.FS.readdirSync(`./pages/`).forEach((file, idx) => {
+            if (file.endsWith(`.act`)) {
+                this.pagesFileExists = true;
+
+                const XMLText = this.FS.readFileSync(`./pages/${file}`).toString();
+                const XMLJson = JSON.parse(this.convert.xml2json(XMLText, {compact: true, spaces: 4}));
+
+                if (XMLJson?.route?._attributes?.path === undefined) {
+                    throw new Error(`You must create the required properties for the "route" tag.`);
+                }
+                
+                this.pages[idx] = {
+                    path: XMLJson.route._attributes.path,
+                    method: XMLJson.route._attributes.method,
+                    view: ``,
+                    variables: []
+                };
+                
+                if (XMLJson?.route?._attributes) delete XMLJson.route._attributes;
+                
+                XMLJson.route = this.fixAttributes(XMLJson.route,
+                    [`className`, `class`],
+                
+                    [`onLoad`, `onload`],
+                
+                    [`onClick`, `onclick`],
+                    [`onMouseDown`, `onmousedown`],
+                    [`onMouseMove`, `onmousemove`],
+                    [`onMouseUp`, `onmouseup`],
+                
+                    [`onInput`, `oninput`],
+                    [`onKeyDown`, `onkeydown`],
+                    [`onKeyUp`, `onkeyup`]
+                );
+                
+                let XMLResult = this.convert.json2xml(XMLJson.route, {compact: true, spaces: 4});
+                
+                let matches = [
+                    {
+                        match: /<link.*(path=".*").*>/,
+                        func: () => {
+                            const linkTags = XMLResult.match(/<link.*(path=".*").*>/g);
+                            
+                            linkTags.forEach(e => {
+                                const tag = /<link.*(path=".*").*>/.exec(e);
+                                XMLResult = XMLResult.replace(tag[0],
+                                    tag[0].replace(tag[0],
+                                        `<a ${tag[1].replace(`path=`, `href=`)}>${JSON.parse(this.convert.xml2json(e)).elements[0].elements[0].text}</a>`
+                                    )
+                                );
+                            });
+                        }
+                    },
+                    {
+                        match: /<img.*(path=".*").*>/,
+                        func: () => {
+                            const imgTags = XMLResult.match(/<img.*(path=".*").*>/g);
+                                
+                            imgTags.forEach(e => {
+                                const tag = /<img.*(path=".*").*>/.exec(e);
+                                XMLResult = XMLResult.replace(tag[0],
+                                    tag[0].replace(tag[0],
+                                        `<img ${tag[1].replace(`path=`, `src=`)} />`
+                                    )
+                                );
+                            });
+                        }
+                    },
+                    {
+                        match: /<text.*>/,
+                        func: () => {
+                            const textTags = XMLResult.match(/<text.*>/g);
+                
+                            textTags.forEach(e => {
+                                const tag = /<text.*>/.exec(e);
+                                XMLResult = XMLResult.replace(tag[0], tag[0].replace(/<text/, `<p`).replace(/<\/text>/, `</p>`));
+                            });
+                        }
+                    },
+                    {
+                        match: /<import.*\/>/,
+                        func: () => {
+                            const importTags = XMLResult.match(/<import.*\/>/g);
+                
+                            importTags.forEach(e => {
+                                const tag = /<import.*\/>/.exec(e);
+        
+                                const tagJSON = JSON.parse(this.convert.xml2json(tag));
+                                const tagType = tagJSON?.elements[0]?.attributes?.type;
+                                const tagPath = tagJSON?.elements[0]?.attributes?.path;
+        
+                                if (tagType === `stylesheet`) {
+                                    XMLResult = XMLResult.replace(tag[0], `<style>${this.FS.readFileSync(tagPath).toString()}</style>`);
+                                }
+        
+                                if (tagType === `script`) {
+                                    XMLResult = XMLResult.replace(tag[0], `<script>${this.FS.readFileSync(tagPath).toString()}</script>`);
+                                }
+        
+                                if (tagType === `component` && tagPath.endsWith(`.act`)) {
+                                    XMLResult = XMLResult.replace(tag[0], this.FS.readFileSync(tagPath).toString());
+                                }
+                            });
+                        }
+                    },
+                    {
+                        match: /<act-script.*>([\s\S]*?)<\/act-script>/,
+                        func: () => {
+                            const scriptTags = XMLResult.match(/<act-script.*>([\s\S]*?)<\/act-script>/g);
+                            
+                            scriptTags.forEach(e => {
+                                const tag = /<act-script.*>([\s\S]*?)<\/act-script>/.exec(e);
+                                const tagType = this.convert.xml2json(tag[0], {compact: true, spaces: 4})[`act-script`]?._attributes?.type;
+
+                                if ([`text/javascript`, `text/js`, undefined].includes(tagType)) {
+                                    if (tag[1].includes(`actState`)) {
+                                        XMLResult = `<script>const Act = {
+                                            states: [],
+                                        
+                                            eleContent(state) {
+                                                const elements = document.querySelectorAll(\`body *\`);
+                                        
+                                                elements.forEach(element => {
+                                                    if (/\\$\{(.+?)\}/g.test(element.textContent)) {
+                                                        let match = element.textContent.match(/\\$\{(.+?)\}/g);
+                                                        
+                                                        if (/\\$\{(.+?)\}/.exec(match)[1] === state.key) {
+                                                            element.dataset.marep = \`__ma-rep\`;
+                                                            element.textContent = element.textContent.replace(match, \`\u200d\${state.state}\u200d\`);
+                                                        }
+                                                    } else if (element.dataset.marep === \`__ma-rep\`) {
+                                                        element.textContent = element.textContent.replace(/\u200d(.+?)\u200d/, \`\u200d\${state.state}\u200d\`);
+                                                    }
+                                                });
+                                            },
+                                        
+                                            actState({key, value}) {
+                                                this.states = [...this.states, {
+                                                    key: key,
+                                                    state: value
+                                                }];
+                                        
+                                                document.onload = function() {
+                                                    this.eleContent({key, value});
+                                                }
+                                            },
+                                        
+                                            modState({key, value}) {
+                                                this.states.forEach((state, idx) => {
+                                                    if (state.key === key) {
+                                                        this.states[idx].state = value;
+                                                        this.eleContent(state);
+                                                    }
+                                                });
+                                        
+                                            },
+                                        
+                                            get({key}) {
+                                                let result;
+                                        
+                                                this.states.forEach(state => {
+                                                    if (state.key === key) {
+                                                        result = state.state;
+                                                    }
+                                                });
+                                        
+                                                return result;
+                                            }
+                                        };</script>\n${XMLResult}`;
+                                    }
+
+                                    XMLResult = XMLResult.replace(tag[0], tag[0].replace(tag[0], `<script>${tag[1]}</script>`));
+                                }
+                            });
+                        }
+                    }
+                ];
+
+                matches.forEach(match => {
+                    if (match.match.test(XMLResult)) {
+                        match.func();
+                    }
+                });
+                
+                this.pages[idx].view = XMLResult;
+            }
+        });
+    }
+
+    setStartMessage(string) {
+        if (string.trim() !== ``) {
+            this.startMessage = string;
+        }
+    }
+
+    server() {
+        if (!this.FS.existsSync(`./pages/`)) {
+            throw new Error(`Pages folder does not exist.`);
+        }
+
+        if (!this.pagesFileExists) {
+            throw new Error(`There are no files in the pages folder.`);
+        }
+
+        if (typeof this.port !== `number`) {
+            throw new Error(`Invalid port format. ${this.port}`);
+        }
+
+        this.pages.forEach(page => {
+            console.log(this.startMessage.replace(/\$method/g, page.method).replace(/\$port/g, this.port).replace(/\$path/g, page.path));
+
+            this.app[page.method](page.path, (req, res) => {
+                res.send(page.view);
+            });
+        });
+
+        if (this.FS.existsSync(`./src/`)) {
+            this.app.use(`/src/`, this.express.static(`./src/`));
+        }
+
+        this.app.listen(this.port);
+    }
+}
+
+module.exports = ModernAct;

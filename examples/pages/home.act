@@ -1,0 +1,31 @@
+<route path="/" method="get">
+    <title>Home</title>
+
+    <import type="stylesheet" path="./src/css/style.css" />
+    <import type="script" path="./src/script.js" />
+
+    <div style="display: none;" className="modal-bg" id="textModal-bg">
+        <div className="modal" id="textModal">
+            <text className="text-default title">Lorem ipsum dolor simit.</text>
+
+            <button className="close-default submit-button" onClick="close()"><span className="close-shape"></span> Close</button>
+        </div>
+    </div>
+
+    <empty>
+        <text className="text-default title-default">Hello, world</text>
+
+        <hr />
+
+        <text className="text-default desc">Lorem ipsum dolor simit.</text>
+
+        <img path="./src/bg.jpg" alt="default image" />
+
+        <br />
+
+        <import type="component" path="./components/form.act" />
+
+        <link path="./view">Go View Site</link>
+        <link path="./src/bg.jpg" download="bg.jpg">Download Image</link>
+    </empty>
+</route>

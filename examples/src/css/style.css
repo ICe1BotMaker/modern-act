@@ -1,0 +1,20 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.title-default {
+    font-size: 36px;
+    font-weight: 900;
+}
+
+.text-default {
+    font-family: Consolas, 'Courier New', monospace;
+}
+
+img {
+    width: 300px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
