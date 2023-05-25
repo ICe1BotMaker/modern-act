@@ -12,7 +12,7 @@
   "dependencies": {
     "express": "^4.18.2",
     "fs": "^0.0.1-security",
-    "modern-act": "^0.1.5",
+    "modern-act": "^1.0.0",
     "nodemon": "^2.0.22",
     "xml-js": "^1.6.11"
   }

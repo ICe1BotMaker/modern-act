@@ -149,62 +149,9 @@ class ModernAct {
 
                                 if ([`text/javascript`, `text/js`, undefined].includes(tagType)) {
                                     if (tag[1].includes(`actState`)) {
-                                        XMLResult = `<script>const Act = {
-                                            states: [],
-                                        
-                                            eleContent(state) {
-                                                const elements = document.querySelectorAll(\`body *\`);
-                                        
-                                                elements.forEach(element => {
-                                                    if (/\\$\{(.+?)\}/g.test(element.textContent)) {
-                                                        let match = element.textContent.match(/\\$\{(.+?)\}/g);
-                                                        
-                                                        if (/\\$\{(.+?)\}/.exec(match)[1] === state.key) {
-                                                            element.dataset.marep = \`__ma-rep\`;
-                                                            element.textContent = element.textContent.replace(match, \`\u200d\${state.state}\u200d\`);
-                                                        }
-                                                    } else if (element.dataset.marep === \`__ma-rep\`) {
-                                                        element.textContent = element.textContent.replace(/\u200d(.+?)\u200d/, \`\u200d\${state.state}\u200d\`);
-                                                    }
-                                                });
-                                            },
-                                        
-                                            actState({key, value}) {
-                                                this.states = [...this.states, {
-                                                    key: key,
-                                                    state: value
-                                                }];
-                                        
-                                                document.onload = function() {
-                                                    this.eleContent({key, value});
-                                                }
-                                            },
-                                        
-                                            modState({key, value}) {
-                                                this.states.forEach((state, idx) => {
-                                                    if (state.key === key) {
-                                                        this.states[idx].state = value;
-                                                        this.eleContent(state);
-                                                    }
-                                                });
-                                        
-                                            },
-                                        
-                                            get({key}) {
-                                                let result;
-                                        
-                                                this.states.forEach(state => {
-                                                    if (state.key === key) {
-                                                        result = state.state;
-                                                    }
-                                                });
-                                        
-                                                return result;
-                                            }
-                                        };</script>\n${XMLResult}`;
+                                        XMLResult = XMLResult.replace(tag[0], ``);
+                                        XMLResult += `<script>${FS.readFileSync(`${__dirname}/actscript.js`)}${tag[1]}</script>`;
                                     }
-
-                                    XMLResult = XMLResult.replace(tag[0], tag[0].replace(tag[0], `<script>${tag[1]}</script>`));
                                 }
                             });
                         }
