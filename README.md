@@ -1,10 +1,10 @@
 # Modern Act
 
-Originally, **Kithub** was intended to be developed based on **React**, but the developer's greed also led to a new one called **Modern Act**.
+- Originally, **Kithub** was intended to be developed based on **React**, but the developer's greed also led to a new one called **Modern Act**.
 
-**Modern Act** begins with a new file extension called `.act`. This extension **.act** was conceived by the developer himself and will be used in future development of the markup language.
+- **Modern Act** begins with a new file extension called `.act`. This extension **.act** was conceived by the developer himself and will be used in future development of the markup language.
 
-The portfolio will be updated continuously.
+- The portfolio will be updated continuously.
 
 directory structure:
 
@@ -32,34 +32,37 @@ directory structure:
 
 ### Installation
 
-[Install Vscode Extension](https://marketplace.visualstudio.com/items?itemName=ice1.modern-act-language) (language support)
+| Vscode Extension (language support) | Modern Act NPM | Moact NPM |
+|-------------------------------------|----------------|-----------|
+| [Go VSCode Extension](https://marketplace.visualstudio.com/items?itemName=ice1.modern-act-language) | [Go NPM](https://www.npmjs.com/package/modern-act) | [Go NPM](https://www.npmjs.com/package/moact) |
 
-[Modern Act NPM](https://www.npmjs.com/package/modern-act)
-
-Install NPM Module:
+Install NPM Global Module:
 
 ```
-$ npm install modern-act
+$ npm install -g moact
+```
+
+Enter **Moact** Commad:
+```
+$ moact init
+
+- F:\Modern Act\modern-act
+$ project name: <project-name>
+
+(project) <project-name>: init success.
+https://github.com/ICe1BotMaker/modern-act
+
+Installing Module...
+Install Module Success
 ```
 
 ### Usage
 
 ```js
-const FS = require(`fs`);
-const convert = require(`xml-js`);
-const express = require(`express`);
-
-const ModernAct = require(`modern-act`);
-
-const act = new ModernAct(3000, FS, convert, express);
-
 act.setStartMessage(`(listening) $method :$port$path`);
-
-act.compile();
-act.server();
 ```
 
-Create `Act.js` first.
+Update `Act.js` first. (optional)
 
 - You can import **.act** files into HTML using the compile method.
 
@@ -108,5 +111,7 @@ You can also use the status that changes in real time as shown above.
 ### Start Server
 
 ```
-$ nodemon --watch ./ -e js,act,css,json
+$ npm run start
 ```
+
+Open a browser and access `localhost:<port>`

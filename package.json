@@ -1,6 +1,6 @@
 {
   "name": "modern-act",
-  "version": "0.0.4",
+  "version": "0.1.5",
   "description": "Developers' greed also led to a new thing called Modern Act.",
   "main": "index.js",
   "directories": {
@@ -27,5 +27,9 @@
   "bugs": {
     "url": "https://github.com/ICe1BotMaker/modern-act/issues"
   },
-  "homepage": "https://github.com/ICe1BotMaker/modern-act#readme"
+  "homepage": "https://github.com/ICe1BotMaker/modern-act#readme",
+  "devDependencies": {
+    "@types/express": "^4.17.17",
+    "@types/node": "^20.2.3"
+  }
 }

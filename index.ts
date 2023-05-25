@@ -1,26 +1,51 @@
-const FS = require(`fs`);
-const convert = require(`xml-js`);
-const express = require(`express`);
-const app = express();
+/* modules */
+import FS from 'fs';
+import convert from 'xml-js';
+import express from 'express';
 
 class ModernAct {
-    constructor(port) {
+    /* set option */
+    public startMessage: string;
+    public port: number;
+
+    /* pages */
+    private pages: {    
+        path: string;
+        method: string;
+        view: string;
+        variables: any[];
+    }[];
+
+    /* use module */
+    private app: any;
+    private express: any;
+
+    /* private variable */
+    private pagesFileExists: boolean;
+
+    /* constructor */
+    public constructor(port: number) {
         this.pages = [];
-
         this.startMessage = `[ ! ] $method: localhost:$port$path`;
-
         this.port = port;
-
+        this.express = express;
+        this.app = this.express();
         this.pagesFileExists = false;
     }
-                
-    fixAttributes = (obj, ...BefAfts) => {
+
+    /* check and fix attributes */
+    private sanitizeAttributes(obj: object, ...BefAfts: any[]) {
+        /* Array to use when modifying an object */
         BefAfts.forEach(BefAft => {
             Object.keys(obj).forEach(key => {
+                /* if obj ~ */
                 if (typeof obj[key] === `object`) {
-                    this.fixAttributes(obj[key], BefAft);
+                    /* loop function */
+                    this.sanitizeAttributes(obj[key], BefAft);
         
+                    /* check exist _attributes object, check exist key in BefAft[0] */
                     if (obj[key]._attributes !== undefined && obj[key]._attributes[BefAft[0]] !== undefined) {
+                        /* add attribute and delete */
                         obj[key]._attributes[BefAft[1]] = obj[key]._attributes[BefAft[0]];
         
                         delete obj[key]._attributes[BefAft[0]];
@@ -32,18 +57,23 @@ class ModernAct {
         return obj;
     }
 
-    compile() {
-        FS.readdirSync(`./pages/`).forEach((file, idx) => {
+    /* act to html */
+    public compile() {
+        /* get act files in pages folder */
+        FS.readdirSync(`./pages/`).forEach((file: string, idx: number) => {
             if (file.endsWith(`.act`)) {
                 this.pagesFileExists = true;
 
+                /* get act file text and convert text to json */
                 const XMLText = FS.readFileSync(`./pages/${file}`).toString();
                 const XMLJson = JSON.parse(convert.xml2json(XMLText, {compact: true, spaces: 4}));
 
+                /* check exist path */
                 if (XMLJson?.route?._attributes?.path === undefined) {
                     throw new Error(`You must create the required properties for the "route" tag.`);
                 }
                 
+                /* page information */
                 this.pages[idx] = {
                     path: XMLJson.route._attributes.path,
                     method: XMLJson.route._attributes.method,
@@ -51,9 +81,11 @@ class ModernAct {
                     variables: []
                 };
                 
+                /* check exist _attributes object in root */
                 if (XMLJson?.route?._attributes) delete XMLJson.route._attributes;
                 
-                XMLJson.route = this.fixAttributes(XMLJson.route,
+                /* fix attribute */
+                XMLJson.route = this.sanitizeAttributes(XMLJson.route,
                     [`className`, `class`],
                 
                     [`onLoad`, `onload`],
@@ -68,46 +100,40 @@ class ModernAct {
                     [`onKeyUp`, `onkeyup`]
                 );
                 
+                /* modify result */
                 let XMLResult = convert.json2xml(XMLJson.route, {compact: true, spaces: 4});
                 
+                /* tag match */
                 let matches = [
                     {
                         match: /<link.*(path=".*").*>/,
                         func: () => {
-                            const linkTags = XMLResult.match(/<link.*(path=".*").*>/g);
+                            const linkTags: any = XMLResult.match(/<link.*(path=".*").*>/g);
                             
-                            linkTags.forEach(e => {
-                                const tag = /<link.*(path=".*").*>/.exec(e);
-                                XMLResult = XMLResult.replace(tag[0],
-                                    tag[0].replace(tag[0],
-                                        `<a ${tag[1].replace(`path=`, `href=`)}>${JSON.parse(convert.xml2json(e)).elements[0].elements[0].text}</a>`
-                                    )
-                                );
+                            linkTags.forEach((e: string) => {
+                                const tag: any = /<link.*(path=".*").*>/.exec(e);
+                                XMLResult = XMLResult.replace(tag[0], tag[0].replace(tag[0], `<a ${tag[1].replace(`path=`, `href=`)}>${JSON.parse(convert.xml2json(e)).elements[0].elements[0].text}</a>`));
                             });
                         }
                     },
                     {
                         match: /<img.*(path=".*").*>/,
                         func: () => {
-                            const imgTags = XMLResult.match(/<img.*(path=".*").*>/g);
+                            const imgTags: any = XMLResult.match(/<img.*(path=".*").*>/g);
                                 
-                            imgTags.forEach(e => {
-                                const tag = /<img.*(path=".*").*>/.exec(e);
-                                XMLResult = XMLResult.replace(tag[0],
-                                    tag[0].replace(tag[0],
-                                        `<img ${tag[1].replace(`path=`, `src=`)} />`
-                                    )
-                                );
+                            imgTags.forEach((e: string) => {
+                                const tag: any = /<img.*(path=".*").*>/.exec(e);
+                                XMLResult = XMLResult.replace(tag[0], tag[0].replace(tag[0], `<img ${tag[1].replace(`path=`, `src=`)} />`));
                             });
                         }
                     },
                     {
                         match: /<text.*>/,
                         func: () => {
-                            const textTags = XMLResult.match(/<text.*>/g);
+                            const textTags: any = XMLResult.match(/<text.*>/g);
                 
-                            textTags.forEach(e => {
-                                const tag = /<text.*>/.exec(e);
+                            textTags.forEach((e: string) => {
+                                const tag: any = /<text.*>/.exec(e);
                                 XMLResult = XMLResult.replace(tag[0], tag[0].replace(/<text/, `<p`).replace(/<\/text>/, `</p>`));
                             });
                         }
@@ -115,10 +141,10 @@ class ModernAct {
                     {
                         match: /<import.*\/>/,
                         func: () => {
-                            const importTags = XMLResult.match(/<import.*\/>/g);
+                            const importTags: any = XMLResult.match(/<import.*\/>/g);
                 
-                            importTags.forEach(e => {
-                                const tag = /<import.*\/>/.exec(e);
+                            importTags.forEach((e: string) => {
+                                const tag: any = /<import.*\/>/.exec(e);
         
                                 const tagJSON = JSON.parse(convert.xml2json(tag));
                                 const tagType = tagJSON?.elements[0]?.attributes?.type;
@@ -141,10 +167,10 @@ class ModernAct {
                     {
                         match: /<act-script.*>([\s\S]*?)<\/act-script>/,
                         func: () => {
-                            const scriptTags = XMLResult.match(/<act-script.*>([\s\S]*?)<\/act-script>/g);
+                            const scriptTags: any = XMLResult.match(/<act-script.*>([\s\S]*?)<\/act-script>/g);
                             
-                            scriptTags.forEach(e => {
-                                const tag = /<act-script.*>([\s\S]*?)<\/act-script>/.exec(e);
+                            scriptTags.forEach((e: string) => {
+                                const tag: any = /<act-script.*>([\s\S]*?)<\/act-script>/.exec(e);
                                 const tagType = convert.xml2json(tag[0], {compact: true, spaces: 4})[`act-script`]?._attributes?.type;
 
                                 if ([`text/javascript`, `text/js`, undefined].includes(tagType)) {
@@ -211,6 +237,7 @@ class ModernAct {
                     }
                 ];
 
+                /* check tag match, run function */
                 matches.forEach(match => {
                     if (match.match.test(XMLResult)) {
                         match.func();
@@ -221,39 +248,52 @@ class ModernAct {
             }
         });
     }
-
-    setStartMessage(string) {
+    
+    /* when start server, set log */
+    public setStartMessage(string: string) {
         if (string.trim() !== ``) {
             this.startMessage = string;
         }
     }
 
-    server() {
+    /* start server method */
+    public server() {
+        /* check exist pages folder */
         if (!FS.existsSync(`./pages/`)) {
             throw new Error(`Pages folder does not exist.`);
         }
 
+        /* check exist act file in pages folder */
         if (!this.pagesFileExists) {
             throw new Error(`There are no files in the pages folder.`);
         }
 
+        /* check port is number */
         if (typeof this.port !== `number`) {
             throw new Error(`Invalid port format. ${this.port}`);
         }
 
         this.pages.forEach(page => {
-            console.log(this.startMessage.replace(/\$method/g, page.method).replace(/\$port/g, this.port).replace(/\$path/g, page.path));
+            let message: string = this.startMessage
+            .replace(/\$method/g, page.method)
+            .replace(/\$port/g, String(this.port))
+            .replace(/\$path/g, page.path);
 
-            app[page.method](page.path, (req, res) => {
+            console.log(message);
+
+            /* set method get, post */
+            this.app[page.method](page.path, (req: any, res: any) => {
                 res.send(page.view);
             });
         });
 
+        /* check exist src folder */
         if (FS.existsSync(`./src/`)) {
-            app.use(`/src/`, express.static(`./src/`));
+            this.app.use(`/src/`, this.express.static(`./src/`));
         }
 
-        app.listen(this.port);
+        /* listen localhost:port */
+        this.app.listen(this.port);
     }
 }
 
