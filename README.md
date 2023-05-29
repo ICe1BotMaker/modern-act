@@ -10,6 +10,9 @@ directory structure:
 
 ```markdown
 + my-first-act
+    + .moact
+        - actconfig.json
+
     + src
         + css
             - style.css
@@ -46,7 +49,7 @@ Enter **Moact** Commad:
 ```
 $ moact init
 
-- F:\Modern Act\modern-act
+- C:\<path>
 $ project name: <project-name>
 
 (project) <project-name>: init success.
