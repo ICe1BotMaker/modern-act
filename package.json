@@ -1,15 +1,17 @@
 {
   "name": "modern-act",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Developers' greed also led to a new thing called Modern Act.",
   "main": "index.js",
   "directories": {
     "example": "examples"
   },
   "dependencies": {
+    "child_process": "^1.0.2",
     "express": "^4.18.2",
     "fs": "^0.0.1-security",
     "nodemon": "^2.0.22",
+    "typescript": "^5.0.4",
     "xml-js": "^1.6.11"
   },
   "scripts": {

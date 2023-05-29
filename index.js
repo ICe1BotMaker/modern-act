@@ -1,6 +1,7 @@
 const FS = require(`fs`);
 const convert = require(`xml-js`);
 const express = require(`express`);
+const exec = require(`child_process`).exec;
 const app = express();
 
 class ModernAct {
@@ -12,8 +13,16 @@ class ModernAct {
         this.port = port;
 
         this.pagesFileExists = false;
+
+        this.config = ``;
+        FS.readFileSync(`./.moact/actconfig.json`).toString().split(`\n`).forEach(line => {
+            if (line.trim().startsWith(`//`) || line.trim().includes(`/*`) || line.trim().includes(`*/`)) return;
+            this.config += line;
+        });
+
+        this.config = JSON.parse(this.config);
     }
-                
+
     fixAttributes = (obj, ...BefAfts) => {
         BefAfts.forEach(BefAft => {
             Object.keys(obj).forEach(key => {
@@ -102,9 +111,9 @@ class ModernAct {
                         }
                     },
                     {
-                        match: /<text.*>/,
+                        match: /<text.*>.*<\/text>/,
                         func: () => {
-                            const textTags = XMLResult.match(/<text.*>/g);
+                            const textTags = XMLResult.match(/<text.*>.*<\/text>/g);
                 
                             textTags.forEach(e => {
                                 const tag = /<text.*>/.exec(e);
@@ -145,12 +154,31 @@ class ModernAct {
                             
                             scriptTags.forEach(e => {
                                 const tag = /<act-script.*>([\s\S]*?)<\/act-script>/.exec(e);
-                                const tagType = convert.xml2json(tag[0], {compact: true, spaces: 4})[`act-script`]?._attributes?.type;
+                                const tagType = JSON.parse(convert.xml2json(tag[0], {compact: true, spaces: 4}))[`act-script`]?._attributes?.type;
 
                                 if ([`text/javascript`, `text/js`, undefined].includes(tagType)) {
                                     if (tag[1].includes(`actState`)) {
                                         XMLResult = XMLResult.replace(tag[0], ``);
-                                        XMLResult += `<script>${FS.readFileSync(`${__dirname}/actscript.js`)}${tag[1]}</script>`;
+                                        XMLResult += `<script>${FS.readFileSync(`${__dirname}/actscript.js`)}${tag[1].replaceAll(`&gt;`, `>`).replaceAll(`&lt;`, `<`)}</script>`;
+                                    }
+                                }
+
+                                if ([`text/typescript`, `text/ts`].includes(tagType)) {
+                                    if (!this.config.saveTempFile) FS.readdirSync(`./temp/`).forEach(temp_file => FS.unlinkSync(`./temp/${temp_file}`));
+
+                                    const file_name = `${Math.random().toString(36).substring(2)}.ts`;
+                                    FS.writeFileSync(`./temp/${file_name}`, tag[1].replaceAll(`&gt;`, `>`).replaceAll(`&lt;`, `<`));
+
+                                    this.promise = () => {
+                                        return new Promise((res, rej) => {
+                                            exec(`tsc --module commonjs ${file_name}`, {cwd: `./temp/`}).addListener(`exit`, () => {
+                                                XMLResult = XMLResult.replace(tag[0], ``);
+                                                XMLResult += `<script>${FS.readFileSync(`${__dirname}/actscript.js`)}${FS.readFileSync(`./temp/${file_name.replace(`.ts`, `.js`)}`).toString()}</script>`;
+    
+                                                if (!this.config.saveTempFile) FS.readdirSync(`./temp/`).forEach(temp_file => FS.unlinkSync(`./temp/${temp_file}`));
+                                                res({idx: idx, view: XMLResult});
+                                            });
+                                        });
                                     }
                                 }
                             });
@@ -175,7 +203,9 @@ class ModernAct {
         }
     }
 
-    server() {
+    async server() {
+        if (this.promise) await this.promise().then(data => this.pages[data.idx].view = data.view);
+
         if (!FS.existsSync(`./pages/`)) {
             throw new Error(`Pages folder does not exist.`);
         }

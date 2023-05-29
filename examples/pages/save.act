@@ -4,13 +4,13 @@
     <import type="stylesheet" path="./src/css/style.css" />
     <import type="script" path="./src/script.js" />
 
-    <act-script type="text/javascript">
+    <act-script type="text/ts">
         Act.actState({
             key: `foo`,
             value: false
         });
 
-        const buttonOnclick = function() {
+        const buttonOnclick = () => {
             Act.modState({
                 key: `foo`,
                 value: !Act.get({key: `foo`})
@@ -18,8 +18,10 @@
         }
     </act-script>
 
+    <textarea>1</textarea>
+
     <text className="text-default">Save Success</text>
-    <text className="text-default">${foo}</text>
+    <text className="text-default">bool: ${foo}.</text>
 
     <button onClick="buttonOnclick()">Change Value</button>
 </route>

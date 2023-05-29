@@ -1,7 +1,7 @@
 /* modules */
-import FS from 'fs';
-import convert from 'xml-js';
-import express from 'express';
+const FS = require(`fs`);
+const convert = require(`xml-js`);
+const express = require(`express`);
 
 class ModernAct {
     /* set option */

@@ -1,10 +1,6 @@
-const FS = require(`fs`);
-const convert = require(`xml-js`);
-const express = require(`express`);
-
 const ModernAct = require(`../index.js`);
 
-const act = new ModernAct(3000, FS, convert, express);
+const act = new ModernAct(3000);
 
 act.setStartMessage(`(listening) $method :$port$path`);
 

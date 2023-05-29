@@ -5,13 +5,14 @@
   "main": "Act.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon --watch ./ -e js,act,css,json"
+    "start": "nodemon --watch ./ -e act,css,json"
   },
   "author": "",
   "license": "MIT",
   "dependencies": {
     "express": "^4.18.2",
     "fs": "^0.0.1-security",
+    "moact": "^1.1.0",
     "modern-act": "^1.0.0",
     "nodemon": "^2.0.22",
     "xml-js": "^1.6.11"
