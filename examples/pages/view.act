@@ -4,5 +4,5 @@
     <import type="stylesheet" path="./src/css/style.css" />
     <import type="script" path="./src/script.js" />
 
-    <text className="text-default">test view</text>
+    <p className="text-default">test view</p>
 </route>

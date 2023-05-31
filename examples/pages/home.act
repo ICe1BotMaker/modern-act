@@ -6,18 +6,18 @@
 
     <div style="display: none;" className="modal-bg" id="textModal-bg">
         <div className="modal" id="textModal">
-            <text className="text-default title">Lorem ipsum dolor simit.</text>
+            <p className="text-default title">Lorem ipsum dolor simit.</p>
 
             <button className="close-default submit-button" onClick="close()"><span className="close-shape"></span> Close</button>
         </div>
     </div>
 
     <empty>
-        <text className="text-default title-default">Hello, world</text>
+        <p className="text-default title-default">Hello, world</p>
 
         <hr />
 
-        <text className="text-default desc">Lorem ipsum dolor simit.</text>
+        <p className="text-default desc">Lorem ipsum dolor simit.</p>
 
         <img path="./src/bg.jpg" alt="default image" />
 

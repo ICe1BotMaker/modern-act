@@ -1,9 +1,9 @@
 {
     // If you change this property to true, you can save the data converted from typescript to javascript to temp folder.
     "saveTempFile": false,
-    
-    // Changing this property allows you to set the default page when accessed by the localhost:port number.
-    "defaultPage": "/",
+
+    // If you change this property to true, the 404.act file appears in the pages folder when the user accesses the wrong page.
+    "actErrorPage": true,
 
     // If you change this property to true, you can receive an Ajax request.
     "corsEnabled": false

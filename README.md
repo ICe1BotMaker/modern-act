@@ -1,3 +1,7 @@
+<div style="width: 100%; display: flex; justify-content: center; background: white">
+    <img src="https://ifh.cc/g/WPL5yw.png" style="width: 200px;">
+</div>
+
 # Modern Act
 
 - Originally, **Kithub** was intended to be developed based on **React**, but the developer's greed also led to a new one called **Modern Act**.
@@ -6,38 +10,13 @@
 
 - The portfolio will be updated continuously.
 
-directory structure:
-
-```markdown
-+ my-first-act
-    + .moact
-        - actconfig.json
-
-    + src
-        + css
-            - style.css
-            
-        - bg.jpg
-        - script.js
-
-    + pages
-        - home.act
-        - save.act
-        - view.act
-
-    + components
-        - form.act
-    
-    - Act.js
-    - package.json
-    - package-lock.json
-```
-
 ### Installation
 
 | Vscode Extension (language support) | Modern Act NPM | Moact NPM |
 |-------------------------------------|----------------|-----------|
 | [Go VSCode Extension](https://marketplace.visualstudio.com/items?itemName=ice1.modern-act-language) | [Go NPM](https://www.npmjs.com/package/modern-act) | [Go NPM](https://www.npmjs.com/package/moact) |
+
+![Modern Act](https://ifh.cc/g/NlGXx5.gif)
 
 Install NPM Global Module:
 
@@ -59,57 +38,13 @@ Installing Module...
 Install Module Success
 ```
 
-### Usage
+### Differences from React
 
-```js
-act.setStartMessage(`(listening) $method :$port$path`);
-```
+- **React** speeds up by reloading components when state changes, while **Modern Act** speeds up by reloading text when state.
 
-Update `Act.js` first. (optional)
+- While **React** is entirely JavaScript, **Modern Act** uses a markup language created by developers.
 
-- You can import **.act** files into HTML using the compile method.
-
-- You can use a method called `setStartMessage` to output the message you want when the server starts.
-
-```xml
-<route path="/" method="get">
-    <title>Modern Act</title>
-
-    <import type="stylesheet" path="./src/css/style.css" />
-    <import type="script" path="./src/script.js" />
-
-    <text className="text-default">Hello, world!</text>
-</route>
-```
-
-You can create a file with the `.act` extension in the pages folder in the root directory and modify it as above.
-
-```xml
-<import type="script" path="./src/script.js" />
-```
-
-You can import a style sheet or script file using the `import` tag.
-
-```xml
-<act-script type="text/javascript">
-    Act.actState({
-        key: `foo`,
-        value: false
-    });
-
-    const buttonOnclick = function() {
-        Act.modState({
-            key: `foo`,
-            value: !Act.get({key: `foo`})
-        });
-    }
-</act-script>
-
-<!-- replace ${foo} with abcdef -->
-<text className="text-default">${foo}</text>
-```
-
-You can also use the status that changes in real time as shown above.
+- ~~_I made it._~~
 
 ### Start Server
 

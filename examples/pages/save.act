@@ -20,8 +20,8 @@
 
     <textarea>1</textarea>
 
-    <text className="text-default">Save Success</text>
-    <text className="text-default">bool: ${foo}.</text>
+    <p className="text-default">Save Success</p>
+    <p className="text-default">bool: ${foo}.</p>
 
     <button onClick="buttonOnclick()">Change Value</button>
 </route>

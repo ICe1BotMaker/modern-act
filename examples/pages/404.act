@@ -1,0 +1,11 @@
+<route>
+    <act-script type="text/js">
+        Act.actState({
+            key: `status`,
+            value: 404
+        });
+    </act-script>
+    
+    <h1>Status ${status}</h1>
+    <p>${status} page not found</p>
+</route>
