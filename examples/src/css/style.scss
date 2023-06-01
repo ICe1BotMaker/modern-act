@@ -1,0 +1,16 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.list {
+    width: 100px;
+    float: left;
+    li {
+        color: red;
+        &:last-child {
+            margin-right: -10px;
+        }
+    }
+}

@@ -1,6 +1,4 @@
-<div style="width: 100%; display: flex; justify-content: center; background: white">
-    <img src="https://ifh.cc/g/WPL5yw.png" style="width: 200px;">
-</div>
+![Modern Act](https://ifh.cc/g/5l07Cf.png)
 
 # Modern Act
 

@@ -4,6 +4,8 @@ const convert = require(`xml-js`);
 const express = require(`express`);
 const cors = require(`cors`);
 
+const sass = require(`node-sass`);
+
 const exec = require(`child_process`).exec;
 
 const app = express();
@@ -126,6 +128,20 @@ class ModernAct {
                         if (tagType === `component` && tagPath.endsWith(`.act`)) {
                             XMLResult = XMLResult.replace(tag[0], this.convert(JSON.parse(convert.xml2json(FS.readFileSync(tagPath).toString(), {compact: true, spaces: 4})), idx));
                         }
+
+                        if (tagType === `scss` && tagPath.endsWith(`.scss`)) {
+                            this.scssPromise = () => {
+                                return new Promise((res, rej) => {
+                                    sass.render({
+                                        file: tagPath,
+                                        outFile: tagPath.replace(`.scss`, `.css`)
+                                    }, (err, result) => {
+                                        XMLResult = XMLResult.replace(tag[0], `<style>${result.css.toString()}</style>`);
+                                        res({idx: idx, view: XMLResult});
+                                    });
+                                });
+                            }
+                        }
                     });
                 }
             },
@@ -139,10 +155,17 @@ class ModernAct {
                         const tagType = JSON.parse(convert.xml2json(tag[0], {compact: true, spaces: 4}))[`act-script`]?._attributes?.type;
 
                         if ([`text/javascript`, `text/js`, undefined].includes(tagType)) {
+                            let result;
+
+                            XMLResult = XMLResult.replace(tag[0], ``);
+                            
                             if (tag[1].includes(`actState`)) {
-                                XMLResult = XMLResult.replace(tag[0], ``);
-                                XMLResult += `<script>${FS.readFileSync(`${__dirname}/actscript.js`)}${tag[1].replaceAll(`&gt;`, `>`).replaceAll(`&lt;`, `<`)}</script>`;
+                                result = `<script>${FS.readFileSync(`${__dirname}/actscript.js`)}${tag[1].replaceAll(`&gt;`, `>`).replaceAll(`&lt;`, `<`)}</script>`;
+                            } else {
+                                result = `<script>${tag[1].replaceAll(`&gt;`, `>`).replaceAll(`&lt;`, `<`)}</script>`;
                             }
+
+                            XMLResult += result;
                         }
 
                         if ([`text/typescript`, `text/ts`].includes(tagType)) {
@@ -151,7 +174,7 @@ class ModernAct {
                             const file_name = `${Math.random().toString(36).substring(2)}.ts`;
                             FS.writeFileSync(`./temp/${file_name}`, tag[1].replaceAll(`&gt;`, `>`).replaceAll(`&lt;`, `<`));
 
-                            this.promise = () => {
+                            this.tscPromise = () => {
                                 return new Promise((res, rej) => {
                                     exec(`tsc --module commonjs ${file_name}`, {cwd: `./temp/`}).addListener(`exit`, () => {
                                         XMLResult = XMLResult.replace(tag[0], ``);
@@ -212,7 +235,8 @@ class ModernAct {
     }
 
     async server() {
-        if (this.promise) await this.promise().then(data => this.pages[data.idx].view = data.view);
+        if (this.tscPromise) await this.tscPromise().then(data => this.pages[data.idx].view = data.view);
+        if (this.scssPromise) await this.scssPromise().then(data => this.pages[data.idx].view = data.view);
 
         if (!FS.existsSync(`./pages/`)) {
             throw new Error(`Pages folder does not exist.`);

@@ -1,15 +1,17 @@
 <route path="/save" method="post">
     <title>Save</title>
 
-    <import type="stylesheet" path="./src/css/style.css" />
+    <import type="scss" path="./src/css/style.scss" />
     <import type="script" path="./src/script.js" />
 
-    <act-script type="text/ts">
+    <act-script type="text/js">
         Act.actState({
             key: `foo`,
             value: false
         });
+    </act-script>
 
+    <act-script type="text/js">
         const buttonOnclick = () => {
             Act.modState({
                 key: `foo`,

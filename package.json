@@ -1,6 +1,6 @@
 {
   "name": "modern-act",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "Developers' greed also led to a new thing called Modern Act.",
   "main": "index.js",
   "directories": {
@@ -11,6 +11,7 @@
     "cors": "^2.8.5",
     "express": "^4.18.2",
     "fs": "^0.0.1-security",
+    "node-sass": "^9.0.0",
     "nodemon": "^2.0.22",
     "typescript": "^5.0.4",
     "xml-js": "^1.6.11"
