@@ -23,8 +23,8 @@ class ModernAct {
             FS.readFileSync(`./.moact/actconfig.json`).toString().split(`\n`).forEach(line => {
                 if (line.trim().startsWith(`//`) || line.trim().includes(`/*`) || line.trim().includes(`*/`)) return;
                 this.config += line;
-                this.config = JSON.parse(this.config);
             });
+            this.config = JSON.parse(this.config);
         } else {
             this.config = {
                 "saveTempFile": false,
