@@ -2,7 +2,7 @@
 
 # Modern Act
 
-- Originally, **Kithub** was intended to be developed based on **React**, but the developer's greed also led to a new one called **Modern Act**.
+- Originally, **Kithub** was intended to be developed based on **React**, ~~but the developer's greed also led to a new one called **Modern Act**.~~
 
 - **Modern Act** begins with a new file extension called `.act`. This extension **.act** was conceived by the developer himself and will be used in future development of the markup language.
 
